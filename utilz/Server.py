@@ -5,21 +5,8 @@ from utilz.method import *
 from utilz.constant import *
 
 class Server:
-    def __init__(self, host, port, num = 5):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.bind((host, port))
-        self.s.listen(num)
-        self.connect()
-
-    def connect(self):
-        print("Connecting...")
-        while True:
-            try: 
-                self.client, self.addr = self.s.accept()
-                print('Connected by', self.addr)
-                break
-            except:
-                print("Listen to client...")
+    def __init__(self, client, addr):
+        self.client, self.addr = client, addr
     
     def sendListOfData(self, folder):
         folData = glob.glob(folder+"\\*")

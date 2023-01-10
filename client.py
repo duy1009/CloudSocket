@@ -1,6 +1,7 @@
 from utilz.method import *
 from utilz.constant import *
 from utilz.Client import Client
+import os
 HOST='localhost'
 PORT=8000
 
@@ -34,6 +35,9 @@ while True:
         file_name = input()
         # file_name = "haa.py"
         
+        if os.path.isfile(file_name):
+            client.sendInt(1000000)
+            continue
         client.sendFileName(file_name)
         client.sendFile(file_path)
         status = client.recvInt()
@@ -52,7 +56,7 @@ while True:
             if (status == 2):
                 f_name = list_data[snum]
                 data = client.recv_data(HEADER)
-                print(f"Size: {data} bytes")
+                print(f"Size: {len(data)} bytes")
                 save_path = save_fol + "/" + f_name
                 st = saveData(save_path, data)
                 print(STATUS[st])
