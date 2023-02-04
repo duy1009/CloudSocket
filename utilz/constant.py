@@ -6,3 +6,11 @@ STATUS = {
 }
 
 HEADER = 5
+
+OPTIONS = {
+    "GET_LIST":1,
+    "PUSH_FILE":2,
+    "DOWNLOAD_FILE":3,
+    "DELETE_FILE":4,
+    "EXIT":5,
+}

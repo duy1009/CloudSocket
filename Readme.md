@@ -18,15 +18,12 @@ We need a computer to use as a Server and other computers as Clients
 
 Step 1: Connect 2 computers to the same wifi.
 
-Step 2: Change the IP address in the client.py (line 5) of Clients and server.py (line 8) files of Server to the IP address of Server.
+Step 2: Run server and get IP address and PORT (on terminal run code)
 
-You can find the IP address with the command `ipconfig` for Windows OS or `ifconfig` for Linux.
+Step 3: Run client and enter the IP address enter the ip address and port you just found in step 2 in the Server IP and Server PORT box
 
-Step 3: Run code
+You also can find the IP address with the command `ipconfig` for Windows OS or `ifconfig` for Linux.
 
-Server: `python server.py`
+Step 4: Click on button connect
 
-Client: `python client.py`
-
-* Node: you can run code on a computer if you use multiple terminals instead of multiple computers and edit the ip address in step 2 is "localhost" or "127.0.0.1"
 

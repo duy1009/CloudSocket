@@ -54,5 +54,7 @@ class Server:
     def recvInt(self):
         data = dec(self.key, self.recv_all(4))
         return int.from_bytes(data, 'big')
-
+    def close(self):
+        self.client.shutdown(socket.SHUT_RDWR)
+        self.client.close()
     # print(list)

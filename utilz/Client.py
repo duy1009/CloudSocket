@@ -6,6 +6,14 @@ from utilz.RC4 import *
 class Client:
     def __init__(self, host, port, key):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.SOURCE_PORT = 51055
+        while True:
+            try:
+                self.s.bind(('0.0.0.0', self.SOURCE_PORT))
+                break
+            except:
+                print(f"PORT {self.SOURCE_PORT} is used, try to another PORT...")
+                self.SOURCE_PORT+=1
         self.server_address = (host, port)
         self.key = key
         # self.connect()

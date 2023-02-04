@@ -5,12 +5,13 @@ from utilz.Server import Server
 import threading 
 import socket
 dataPath = "./Data"
-HOST='localhost'
+HOST=socket.gethostbyname(socket.gethostname())
 PORT=8000
 key = b"MMT_CDDMTK"
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((HOST, PORT))
-s.listen(5)
+s.listen(10)
+import time
 
 
 def connect(sc):
@@ -22,21 +23,22 @@ def connect(sc):
             break
         except:
             print("Listen to client...")
+            time.sleep(0.5)
     return client, addr
 
 def run(server):
     while True:
         option = server.recvInt()
-        if (option == 1):
+        if (option == OPTIONS["GET_LIST"]):
             server.sendListOfData(dataPath)
-        if (option == 2):
+        if (option == OPTIONS["PUSH_FILE"]):
             file_name = server.recv_data(HEADER).decode("utf8")
             data = server.recv_data(HEADER)
 
             file_path = dataPath+"/"+file_name
             status = saveData(file_path, data)
             server.sendInt( status) # status feedback
-        elif (option == 3):
+        elif (option == OPTIONS["DOWNLOAD_FILE"]):
             file_name = server.recv_data(HEADER).decode("utf8")
             full_path = dataPath + "/" + file_name
             
@@ -47,7 +49,7 @@ def run(server):
             
             if status == 2: # send file
                 server.sendFile(full_path)
-        elif option == 4:
+        elif option == OPTIONS["DELETE_FILE"]:
             file_name = server.recv_data(HEADER).decode("utf8")
             full_path = dataPath + "/" + file_name
             
@@ -61,18 +63,19 @@ def run(server):
         elif(option == 5):
             # create a thread to listen new client
             print("Closed a client")
+            server.close()
             break
         elif(option == 1000000): # fix some errors of option 3
             continue
 
+print(f"Server address: {HOST} : {PORT}")
 while True:
     client, addr = connect(s)
     ser = Server(client, addr, key)
     thread = threading.Thread(target=run, args=(ser,))
     thread.start()
     print(f"[ACTIVE CONNECTIONS {threading.activeCount() - 1}]")
-# client, addr = connect(s)
-# ser = Server(client, addr)
+
 
 
 

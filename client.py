@@ -15,9 +15,13 @@ HOST=socket.gethostbyname(host_name)
 
 
 class Ui_Client(object):
-    def __init__(self, ClientSC, save_fol_path = "./Data_client"):
+    def __init__(self, HOST, PORT, key, save_fol_path = "./Data_client"):
         self.save_fol = save_fol_path
-        self.ClientSC = ClientSC
+        self.host, self.port = HOST, PORT
+        self.key = key
+        self.ClientSC = Client(self.host, self.port, key)
+        self.isConnect = False
+        self.count = 0
 
     def setupUi(self, Client):
         Client.setObjectName("Client")
@@ -77,21 +81,27 @@ class Ui_Client(object):
         self.ipclent.setGeometry(QtCore.QRect(110, 40, 371, 41))
         self.ipclent.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.ipclent.setObjectName("ipclent")
-
-        self.ipclent.setText(HOST)
+        self.ipclent.setText(socket.gethostbyname(socket.gethostname()))
 
         self.portclient = QtWidgets.QTextEdit(self.frame)
         self.portclient.setGeometry(QtCore.QRect(480, 40, 371, 41))
         self.portclient.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.portclient.setObjectName("portclient")
+        self.portclient.setText(str(self.ClientSC.SOURCE_PORT))
+        
+
         self.ipserver = QtWidgets.QTextEdit(self.frame)
         self.ipserver.setGeometry(QtCore.QRect(110, 80, 371, 41))
         self.ipserver.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.ipserver.setObjectName("ipserver")
+        self.ipserver.setText(socket.gethostbyname(socket.gethostname()))
+
         self.portserver = QtWidgets.QTextEdit(self.frame)
         self.portserver.setGeometry(QtCore.QRect(480, 80, 371, 41))
         self.portserver.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.portserver.setObjectName("portserver")
+        self.portserver.setText(str(self.ClientSC.server_address[1]))
+
         self.label_5 = QtWidgets.QLabel(self.centralwidget)
         self.label_5.setGeometry(QtCore.QRect(10, 170, 81, 21))
         font = QtGui.QFont()
@@ -127,7 +137,9 @@ class Ui_Client(object):
         self.B_add.setObjectName("B_add")
         self.B_add.clicked.connect(self.pushButton_handler)
         self.buttonconnect = QtWidgets.QToolButton(self.centralwidget)
-        self.buttonconnect.setGeometry(QtCore.QRect(700, 130, 111, 31))
+        self.buttonconnect.setGeometry(QtCore.QRect(700, 125, 111, 30))
+        self.buttondisconnect = QtWidgets.QToolButton(self.centralwidget)
+        self.buttondisconnect.setGeometry(QtCore.QRect(700, 155, 111, 30))
         font = QtGui.QFont()
         font.setFamily("Times New Roman")
         font.setPointSize(12)
@@ -136,6 +148,9 @@ class Ui_Client(object):
         self.buttonconnect.setFont(font)
         self.buttonconnect.setObjectName("buttonconnect")
         self.buttonconnect.clicked.connect(self.button_clicked)
+        self.buttondisconnect.setFont(font)
+        self.buttondisconnect.setObjectName("buttondisconnect")
+        self.buttondisconnect.clicked.connect(self.button_clicked2)
         self.text_label = QtWidgets.QLabel(self.centralwidget)
         self.text_label.setGeometry(QtCore.QRect(20, 130, 661, 31))
         font = QtGui.QFont()
@@ -187,6 +202,8 @@ class Ui_Client(object):
         self.B_add.setText(_translate("Client", "ADD"))
         self.buttonconnect.setToolTip(_translate("Client", "<html><head/><body><p align=\"center\"><span style=\" font-size:11pt;\"><br/></span></p></body></html>"))
         self.buttonconnect.setText(_translate("Client", "connect"))
+        self.buttondisconnect.setToolTip(_translate("Client", "<html><head/><body><p align=\"center\"><span style=\" font-size:11pt;\"><br/></span></p></body></html>"))
+        self.buttondisconnect.setText(_translate("Client", "disconnect"))
         self.text_label.setToolTip(_translate("Client", "<html><head/><body><p align=\"center\"><span style=\" font-size:11pt; font-weight:600;\"><br/></span></p></body></html>"))
         self.text_label.setText(_translate("Client", ""))
         self.B_refresh.setText(_translate("Client", "Refresh"))
@@ -199,7 +216,7 @@ class Ui_Client(object):
     values = []
     def get_list(self):
         client = self.ClientSC
-        client.sendInt(1) # send option 1
+        client.sendInt(OPTIONS["GET_LIST"]) # send option 1
         list_data = client.recv_data(HEADER)
         return convByteToList1D(list_data,"|")
     # cap nhat list view
@@ -212,83 +229,140 @@ class Ui_Client(object):
     def button_clicked(self):
         # get port client
         portclient = self.portclient.toPlainText()
-        print(portclient)
         #get ip server
         ipserver = self.ipserver.toPlainText()
-        print(ipserver)
         # get port server
         portserver = self.portserver.toPlainText()
-        print(portserver)
-
-        # cap nhat thanh cong
-        self.text_label.setText("connect thanh cong :  " + str(ipserver) + ": " + str(portserver))
+        try:
+            portserver = int(portserver)
+        except:
+            # print("Server port isn't interger")
+            self.text_label.setText("Server port isn't interger")
+            return
+        if not self.isConnect:
+            self.ClientSC = Client(self.host, self.port, self.key)
+            self.ClientSC.SOURCE_PORT+= self.count
+            self.ClientSC.server_address = (ipserver, portserver)
+            self.portclient.setText(str(self.ClientSC.SOURCE_PORT))
+            self.ClientSC.connect()
+            self.isConnect = True
+            # cap nhat thanh cong
+            self.update1()
+            self.text_label.setText("Connect successfully :  " + str(ipserver) + " : " + str(portserver))   
+        else:
+            # print("Client is connecting to another network!")
+            self.text_label.setText("Client is connecting to another network!")
         self.update()
+
+    def button_clicked2(self):
+        if self.isConnect:
+            self.ClientSC.sendInt(OPTIONS["EXIT"])
+            self.ClientSC.s.shutdown(socket.SHUT_RDWR)
+            self.ClientSC.s.close()
+            self.text_label.setText("Disconnected")
+            self.isConnect = False
+        else:
+            # print("Client is not connected")
+            self.text_label.setText("Client is not connected")
+        self.update()
+
     # Cap nhap lai label
     def update(self):
         self.text_label.adjustSize()
     def pushButton_handler(self):
-        print("Button pressed")
         self.open_dialog_box()
     
     def update1 (self):
-        self.values = self.get_list()
-        self.update_list()
-        print("Cap nhat list thanh cong")
+        if self.isConnect:
+            self.values = self.get_list()
+            self.update_list()
+            # print("Update list successfully")
+            self.text_label.setText("Update list successfully")
+        else:
+            self.text_label.setText("Client is not connected")
+            # print("Client is not connected")
+        self.update()
      
     def open_dialog_box(self):
-        filename = QFileDialog.getOpenFileName()
-        path = filename[0]
-        if(path == ''):
-            return
-        print(path)
-        basename = os.path.basename(path)
-        self.values = self.values + [basename]
-        client = self.ClientSC
-        client.sendInt(2)
-        client.sendFileName(basename)
-        client.sendFile(path)
-        status = client.recvInt()
-        self.update1() # update list
-        print(STATUS[status])
+        if self.isConnect:
+            filename = QFileDialog.getOpenFileName()
+            path = filename[0]
+            if(path == ''):
+                return
+            basename = os.path.basename(path)
+            self.values = self.values + [basename]
+            client = self.ClientSC
+            client.sendInt(OPTIONS["PUSH_FILE"])
+            client.sendFileName(basename)
+            client.sendFile(path)
+            status = client.recvInt()
+            self.update1() # update list
+            # print(STATUS[status])
+            self.text_label.setText(STATUS[status])
+        else:
+            self.text_label.setText("Client is not connected")
+            # print("")
+        self.update()
+
     def on_clicked_download(self):
-        row = self.listView.currentIndex().row()
-        client = self.ClientSC
-        client.sendInt(3)
-        client.sendFileName(self.values[row])
-        status = client.recvInt()
-        if (status == 2):
-            f_name = self.values[row]
-            data = client.recv_data(HEADER)
-            print(f"Size: {len(data)} bytes")
-            save_path = self.save_fol + "/" + f_name
-            st = saveData(save_path, data)
-            print(STATUS[st])
-        elif (status == 3):
-            print(STATUS[status])
+        if self.isConnect:
+            row = self.listView.currentIndex().row()
+            client = self.ClientSC
+            client.sendInt(OPTIONS["DOWNLOAD_FILE"])
+            client.sendFileName(self.values[row])
+            status = client.recvInt()
+            if (status == 2):
+                f_name = self.values[row]
+                data = client.recv_data(HEADER)
+                # print(f"Downloaded ({len(data)} bytes)")
+                
+                save_path = self.save_fol + "/" + f_name
+                st = saveData(save_path, data)
+                self.text_label.setText(f"Downloaded:{f_name} ({len(data)} bytes). \n{STATUS[st]}")
+                # print(STATUS[st])
+            elif (status == 3):
+                self.text_label.setText(STATUS[status])
+                # print(STATUS[status])
+        else:
+            self.text_label.setText("Client is not connected")
+        self.update()
+
     def on_clicked_delete(self, index):
-        print ("Click delete")
-        row = self.listView.currentIndex().row()
-        client = self.ClientSC
-        client.sendInt(4)
-        client.sendFileName(self.values[row])
-        status = client.recvInt()
-        if (status == 2):
-            print(STATUS[st])
-        elif (status == 3):
-            print(STATUS[status])
-        self.update1() #update list
-    
-    
+        if self.isConnect:
+            row = self.listView.currentIndex().row()
+            client = self.ClientSC
+            if(0<=row<=len(self.values)):
+                client.sendInt(OPTIONS["DELETE_FILE"])
+                file_name = self.values[row]
+                client.sendFileName(file_name)
+                status = client.recvInt()
+                self.update1() #update list
+                if (status == 2):
+                    # print(STATUS[status])
+                    self.text_label.setText(STATUS[status])
+                elif (status == 3):
+                    # print(STATUS[status])
+                    self.text_label.setText(STATUS[status])
+                elif(status == 0):
+                    self.text_label.setText("Deleted file: "+ file_name)
+            else:
+                # print("Error")
+                self.text_label.setText("Error")
+        else:
+            self.text_label.setText("Client is not connected")
+        self.update()
 
 if __name__ == "__main__":
     import sys
     HOST='localhost'
     PORT=8000
     key = b"MMT_CDDMTK"
-    clientSC = Client(HOST, PORT, key)
+    
+    # clientSC.connect()
     app = QtWidgets.QApplication(sys.argv)
     Cl = QtWidgets.QMainWindow()
-    ui = Ui_Client(clientSC, "./Data_client")
+    ui = Ui_Client(HOST, PORT, key, "./Data_client")
     ui.setupUi(Cl)
     Cl.show()
+    
     sys.exit(app.exec_())
