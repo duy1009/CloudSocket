@@ -1,4 +1,6 @@
 ## Description
+### Physical connection
+![CloudSocket drawio (1)](https://user-images.githubusercontent.com/84137684/211577979-767631ba-6b75-4b72-be26-244469abd037.png)
 
 ## Requirements
 Python 3.8
