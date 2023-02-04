@@ -26,9 +26,9 @@ def connect(sc):
 
 def run(server):
     while True:
-        server.sendListOfData(dataPath)
         option = server.recvInt()
-
+        if (option == 1):
+            server.sendListOfData(dataPath)
         if (option == 2):
             file_name = server.recv_data(HEADER).decode("utf8")
             data = server.recv_data(HEADER)

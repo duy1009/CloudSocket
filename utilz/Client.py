@@ -8,7 +8,7 @@ class Client:
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_address = (host, port)
         self.key = key
-        self.connect()
+        # self.connect()
     
     def connect(self):
         print("Connecting...")
