@@ -7,6 +7,7 @@ import socket
 dataPath = "./Data"
 HOST='localhost'
 PORT=8000
+key = b"MMT_CDDMTK"
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((HOST, PORT))
 s.listen(5)
@@ -66,7 +67,7 @@ def run(server):
 
 while True:
     client, addr = connect(s)
-    ser = Server(client, addr)
+    ser = Server(client, addr, key)
     thread = threading.Thread(target=run, args=(ser,))
     thread.start()
     print(f"[ACTIVE CONNECTIONS {threading.activeCount() - 1}]")

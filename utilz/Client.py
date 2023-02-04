@@ -1,11 +1,13 @@
 import socket
 from utilz.method import *
 from utilz.constant import *
+from utilz.RC4 import *
 
 class Client:
-    def __init__(self, host, port):
+    def __init__(self, host, port, key):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_address = (host, port)
+        self.key = key
         self.connect()
     
     def connect(self):
@@ -23,17 +25,20 @@ class Client:
         data = f.read()
         print(f"Size of file: {len(data)} bytes")
         f.close()
-        msg = msgWithHeader(data, HEADER)
+        dataEnc = enc(self.key, data)
+        msg = msgWithHeader(dataEnc, HEADER)
         self.s.sendall(msg)
 
     def sendFileName(self, name):
         msg = name.encode("utf8")
-        msg = msgWithHeader(msg, HEADER)
+        msgEnc = enc(self.key, msg)
+        msg = msgWithHeader(msgEnc, HEADER)
         self.s.sendall(msg)
     
     def sendInt(self, num):
         data = num.to_bytes(4, 'big')
-        self.s.sendall(data)
+        dataEnc = enc(self.key, data)
+        self.s.sendall(dataEnc)
 
     def recv_all(self, length):
         data = self.s.recv(length)
@@ -47,10 +52,10 @@ class Client:
     def recv_data(self, header): 
         length_byte = self.recv_all(header)
         length = int.from_bytes(length_byte, 'big')
-        return self.recv_all(length)
+        return dec(self.key, self.recv_all(length))
 
     def recvInt(self):
-        data = self.recv_all(4)
+        data = dec(self.key, self.recv_all(4))
         return int.from_bytes(data, 'big')
 
 
