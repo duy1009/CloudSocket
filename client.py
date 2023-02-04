@@ -358,6 +358,7 @@ if __name__ == "__main__":
     PORT=8000
     key = b"MMT_CDDMTK"
     fol_save = ROOT+"/Data_client"
+    makeDir(fol_save)
     app = QtWidgets.QApplication(sys.argv)
     Cl = QtWidgets.QMainWindow()
     ui = Ui_Client(HOST, PORT, key, fol_save)

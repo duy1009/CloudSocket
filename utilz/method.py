@@ -31,3 +31,6 @@ def saveData(path, data): #return status
     file.close()
     return 0
 
+def makeDir(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
