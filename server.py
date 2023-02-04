@@ -7,7 +7,8 @@ from utilz.Server import Server
 import threading 
 import socket
 ROOT = os.getcwd()
-dataPath  = ROOT+"./Data"
+dataPath  = ROOT+"/Data"
+makeDir(dataPath)
 HOST=socket.gethostbyname(socket.gethostname())
 PORT=8000
 key = b"MMT_CDDMTK"
