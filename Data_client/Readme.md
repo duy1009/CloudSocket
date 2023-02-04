@@ -1,1 +1,0 @@
-This directory is where the server's data is stored
