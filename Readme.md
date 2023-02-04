@@ -12,9 +12,9 @@ cd CloudSocket
 pip install -r requirements.txt
 ```
 
-* Run the code with multiple computers (>=2) 
+* Run the code with multiple computers/terminals (>=2) 
 
-We need a computer to use as a Server and other computers as Clients
+We need a computer/terminals to use as a Server and other computers as Clients
 
 Step 1: Connect 2 computers to the same wifi.
 

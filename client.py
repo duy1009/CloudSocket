@@ -12,7 +12,7 @@ import os
 
 host_name=socket.gethostname()
 HOST=socket.gethostbyname(host_name)
-
+ROOT = os.getcwd()
 
 class Ui_Client(object):
     def __init__(self, HOST, PORT, key, save_fol_path = "./Data_client"):
@@ -357,11 +357,10 @@ if __name__ == "__main__":
     HOST='localhost'
     PORT=8000
     key = b"MMT_CDDMTK"
-    
-    # clientSC.connect()
+    fol_save = ROOT+"/Data_client"
     app = QtWidgets.QApplication(sys.argv)
     Cl = QtWidgets.QMainWindow()
-    ui = Ui_Client(HOST, PORT, key, "./Data_client")
+    ui = Ui_Client(HOST, PORT, key, fol_save)
     ui.setupUi(Cl)
     Cl.show()
     

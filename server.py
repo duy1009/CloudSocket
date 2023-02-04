@@ -1,10 +1,13 @@
+# -*- coding: utf-8 -*-
+
 import os
 from utilz.method import *
 from utilz.constant import *
 from utilz.Server import Server
 import threading 
 import socket
-dataPath = "./Data"
+ROOT = os.getcwd()
+dataPath  = ROOT+"./Data"
 HOST=socket.gethostbyname(socket.gethostname())
 PORT=8000
 key = b"MMT_CDDMTK"
