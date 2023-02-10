@@ -3,12 +3,15 @@
 import os
 from utilz.method import *
 from utilz.constant import *
+from utilz.RC4 import *
 from utilz.Server import Server
 import threading 
 import socket
 ROOT = os.getcwd()
 dataPath  = ROOT+"/Data"
+dataRawPath  = ROOT+"/Data_Raw"
 makeDir(dataPath)
+makeDir(dataRawPath)
 HOST=socket.gethostbyname(socket.gethostname())
 PORT=8000
 key = b"MMT_CDDMTK"
@@ -37,11 +40,14 @@ def run(server):
             server.sendListOfData(dataPath)
         if (option == OPTIONS["PUSH_FILE"]):
             file_name = server.recv_data(HEADER).decode("utf8")
-            data = server.recv_data(HEADER)
+            data_raw = server.recv_raw_data(HEADER)
+            data = dec(server.key, data_raw)
 
             file_path = dataPath+"/"+file_name
+            file_raw_path = dataRawPath+"/"+file_name
+            status = saveData(file_raw_path, data_raw)
             status = saveData(file_path, data)
-            server.sendInt( status) # status feedback
+            server.sendInt(status) # status feedback
         elif (option == OPTIONS["DOWNLOAD_FILE"]):
             file_name = server.recv_data(HEADER).decode("utf8")
             full_path = dataPath + "/" + file_name

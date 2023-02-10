@@ -50,7 +50,10 @@ class Server:
         length_byte = self.recv_all(header)
         length = int.from_bytes(length_byte, 'big')
         return dec(self.key, self.recv_all(length))
-
+    def recv_raw_data(self, header):
+        length_byte = self.recv_all(header)
+        length = int.from_bytes(length_byte, 'big')
+        return self.recv_all(length)
     def recvInt(self):
         data = dec(self.key, self.recv_all(4))
         return int.from_bytes(data, 'big')
